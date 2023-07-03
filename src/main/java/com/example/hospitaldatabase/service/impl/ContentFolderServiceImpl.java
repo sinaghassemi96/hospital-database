@@ -1,9 +1,12 @@
 package com.example.hospitaldatabase.service.impl;
 
 import com.example.hospitaldatabase.service.ContentFolderService;
+import com.hierynomus.msdtyp.AccessMask;
 import com.hierynomus.msfscc.FileAttributes;
 import com.hierynomus.msfscc.fileinformation.FileIdBothDirectoryInformation;
+import com.hierynomus.mssmb2.SMB2CreateDisposition;
 import com.hierynomus.mssmb2.SMB2CreateOptions;
+import com.hierynomus.mssmb2.SMB2ShareAccess;
 import com.hierynomus.protocol.commons.EnumWithValue;
 import com.hierynomus.smbj.SMBClient;
 import com.hierynomus.smbj.SmbConfig;
@@ -11,9 +14,12 @@ import com.hierynomus.smbj.auth.AuthenticationContext;
 import com.hierynomus.smbj.connection.Connection;
 import com.hierynomus.smbj.session.Session;
 import com.hierynomus.smbj.share.DiskShare;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -112,5 +118,17 @@ public class ContentFolderServiceImpl implements ContentFolderService {
             return "Directory created Unsuccessful";
         }
 
+    }
+
+    @Override
+    public Resource download() throws IOException {
+        DiskShare diskShare = share();
+        Set<SMB2ShareAccess> smb2ShareAccesses = new HashSet<>();
+        smb2ShareAccesses.add(SMB2ShareAccess.FILE_SHARE_READ);
+        com.hierynomus.smbj.share.File file = diskShare.openFile("/sina/GeneralInformation/T-REC-M.1400-201504-I!!PDF-E.pdf"   , EnumSet.of(AccessMask.GENERIC_READ), null, smb2ShareAccesses, SMB2CreateDisposition.FILE_OPEN, null);
+        InputStream inputStream = file.getInputStream();
+        Resource resource = new InputStreamResource(inputStream);
+
+        return resource;
     }
 }
